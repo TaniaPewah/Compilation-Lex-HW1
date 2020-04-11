@@ -56,20 +56,14 @@ false                                           showToken("FALSE");
 ((0)|[1-9]{digit}*)                             showToken("DEC_INT");
 {hex_num}                                       showToken("HEX_INT");
 id                                              showToken("ID");
-dec_real                                        showToken("DEC_REAL");
+(({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E)(\+|\-)((0)|[1-9]{digit}*)){0,1}           showToken("DEC_REAL");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
 "({letter}*{escape_char}*)*"                    showToken("STRING");
-comment                                         showToken("COMMENT");
-
-
+(\*\/)(.|\n)*(\/\*)                             showToken("COMMENT");
+                 
 
 {digit}+          			                    showToken("number");
 {letter}+					                    showToken("word");
-(({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E)(\+|\-)((0)|[1-9]{digit}*)){0,1}  showToken("DEC_REAL");
-
-
-
-
 {letter}+@{letter}+\.com		                showToken("email address");
 {whitespace}				                    ;
 .		                                        printf("Lex doesn't know what that is!\n");
