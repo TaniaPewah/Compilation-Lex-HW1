@@ -3,7 +3,8 @@
 /* Declarations section */
 #include <stdio.h>
 void showToken(char *);
-
+char ascii_buffer[6];
+char string_buffer[1024];
 %}
 
 %option yylineno
@@ -15,7 +16,9 @@ bin_digit       ([01])
 oct_digit       ([0-7])
 hex_digit       ([a-f]|[A-F]|[0-9])
 hex_num         (0x({hex_digit})+)
-sign 		    ([-\+])
+sign 		    ([-|+])
+ascii           (\\u\{({hex_digit}+\})) /* TODO: limit the range 0x20 to 0x7E, 0x09, 0x0A, 0x0D */
+escape_char     ([\n|\r|\t|\\|\|{ascii}|\"])
 
 %%
 Int|UInt|Double|Float|Bool|String|Character     showToken("TYPE");
@@ -46,14 +49,14 @@ true                                            showToken("TRUE");
 false                                           showToken("FALSE");
 ->                                              showToken("ARROW");
 :                                               showToken("COLON");
-0b{bin_digit}+                                    showToken("BIN_INT");
-0o{oct_digit}+                                    showToken("OCT_INT");
+0b{bin_digit}+                                  showToken("BIN_INT");
+0o{oct_digit}+                                  showToken("OCT_INT");
 ((0)|[1-9]{digit}*)                             showToken("DEC_INT");
 {hex_num}                                       showToken("HEX_INT");
 id                                              showToken("ID");
 dec_real                                        showToken("DEC_REAL");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
-stringg                                         showToken("STRING");
+"({letter}*{escape_char}*)*"                    showToken("STRING");
 comment                                         showToken("COMMENT");
 
 
