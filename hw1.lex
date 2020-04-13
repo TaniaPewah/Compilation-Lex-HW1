@@ -46,7 +46,7 @@ return                                          showToken("RETURN");
 \[                                               showToken("LBRACKET");
 \]                                               showToken("RBRACKET");
 =                                               showToken("ASSIGN");
-((\*\/)(.|\n)*(\/\*))|(\/\/.*)                  showToken("COMMENT");
+((\/\*)(.|\n)*(\*\/))|(\/\/.*)                  showToken("COMMENT");
 ==|!=|<|>|<=|>=                                 showToken("RELOP");
 &&|\|\|                                         showToken("LOGOP");
 \+|\-|\*|\/|%                                   showToken("BINOP");
