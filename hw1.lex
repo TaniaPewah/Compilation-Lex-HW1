@@ -7,6 +7,12 @@ void toLower(char *);
 void handleString();
 void handleComment();
 void unclose_comment();
+int power(int, int);
+int getDecValue(int);
+void fromHexToDec();
+void fromBinToDec();
+void fromOctToDec();
+
 char ascii_buffer[6];
 char string_buffer[1024];
 
@@ -60,10 +66,10 @@ true                                            showToken("TRUE");
 false                                           showToken("FALSE");
 ->                                              showToken("ARROW");
 :                                               showToken("COLON");
-0b{bin_digit}+                                  showToken("BIN_INT");
-0o{oct_digit}+                                  showToken("OCT_INT");
+0b{bin_digit}+                                  fromBinToDec();
+0o{oct_digit}+                                  fromOctToDec();
 ((0)|[1-9]{digit}*)                             showToken("DEC_INT");
-{hex_num}                                       showToken("HEX_INT");
+{hex_num}                                       fromHexToDec();
 _({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
 (({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}((0)|[1-9]{digit}*)){0,1}           showToken("DEC_REAL");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
@@ -139,3 +145,60 @@ void unclose_comment(){
     printf("Error unclosed comment\n");
     exit(0);
 }
+
+
+int power(int base, int exp){
+    int value = 1;
+    for(int i = exp; i > 0; i--){
+        value *= base;
+    }
+    return value;
+}
+
+
+int getDecValue(int base){
+    char* new_num;
+    int dec_value = 0, exp = 0, current_lsb = 0;
+
+    *(yytext++);
+    *(yytext++);
+    
+    new_num = yytext;
+
+    // printf("new num is: %s\nIt's length is %d\n", new_num, yyleng - 2);
+    toLower(new_num);
+
+    for(int i = yyleng - 3; i >= 0; i--){
+        if(new_num[i] >= 'a'){
+            current_lsb =  (int)(new_num[i] - 'a' + 10);
+        }
+        else{
+            current_lsb =  (int)(new_num[i] - '0');
+        }
+
+        dec_value += power(base, exp) *  current_lsb;
+        // printf("Current dec_value = %d\n power is = %d\ncurrent lsb = %d\n", dec_value, power(base, exp), current_lsb);
+        exp++;
+    }
+    return dec_value;
+}
+
+
+void fromHexToDec(){
+    int dec_value = getDecValue(16);
+    printf("%d HEX_INT %d\n", yylineno, dec_value);
+}
+
+
+void fromOctToDec(){
+    int dec_value = getDecValue(8);
+    printf("%d OCT_INT %d\n", yylineno, dec_value);
+}
+
+
+void fromBinToDec(){
+    int dec_value = getDecValue(2);
+    printf("%d BIN_INT %d\n", yylineno, dec_value);
+}
+
+
