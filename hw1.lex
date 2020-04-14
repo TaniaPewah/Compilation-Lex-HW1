@@ -6,6 +6,7 @@ void showToken(char *);
 void toLower(char *);
 void handleString();
 void handleComment();
+void unclose_comment();
 char ascii_buffer[6];
 char string_buffer[1024];
 
@@ -51,7 +52,7 @@ return                                          showToken("RETURN");
 \]                                               showToken("RBRACKET");
 =                                               showToken("ASSIGN");
 ((\/\*)(([^\*])|(\*([^\/])))*(\*\/))|(\/\/.*)                handleComment();
-((\/\*)(([^\*])|(\*([^\/])))*)                  showToken("OPEN_COMMENT");
+((\/\*)(([^\*])|(\*([^\/])))*)                  unclose_comment();
 ==|!=|<|>|<=|>=                                 showToken("RELOP");
 &&|\|\|                                         showToken("LOGOP");
 \+|\-|\*|\/|%                                   showToken("BINOP");
@@ -132,4 +133,9 @@ void handleComment() {
         }
     }
     printf("%d COMMENT %d\n", yylineno, num_lines);
+}
+
+void unclose_comment(){
+    printf("Error unclosed comment\n");
+    exit(0);
 }
