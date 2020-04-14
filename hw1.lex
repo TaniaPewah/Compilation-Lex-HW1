@@ -5,6 +5,7 @@
 void showToken(char *);
 void toLower(char *);
 void handleString();
+void handleComment();
 char ascii_buffer[6];
 char string_buffer[1024];
 
@@ -49,7 +50,7 @@ return                                          showToken("RETURN");
 \[                                               showToken("LBRACKET");
 \]                                               showToken("RBRACKET");
 =                                               showToken("ASSIGN");
-((\/\*)(([^\*])|(\*([^\/])))*(\*\/))|(\/\/.*)                showToken("COMMENT");
+((\/\*)(([^\*])|(\*([^\/])))*(\*\/))|(\/\/.*)                handleComment();
 ((\/\*)(([^\*])|(\*([^\/])))*)                  showToken("OPEN_COMMENT");
 ==|!=|<|>|<=|>=                                 showToken("RELOP");
 &&|\|\|                                         showToken("LOGOP");
@@ -111,4 +112,24 @@ void toLower(char* s) {
 		}
 		ptr++;
 	}
+}
+
+void handleComment() {
+    char* buffer_ptr = yytext;
+    int comment_len = yyleng;
+    int num_lines = 1;
+
+    for(int i = 1; i < comment_len - 1; i++) {
+        if (buffer_ptr[i] == '/' && buffer_ptr[i + 1] == '*') {
+            printf("Warning nested comment\n");
+            exit(0);
+        }
+    }
+
+    for(int i = 0; i < comment_len; i++) {
+        if (buffer_ptr[i] == '\n') {
+            num_lines++;
+        }
+    }
+    printf("%d COMMENT %d\n", yylineno, num_lines);
 }
