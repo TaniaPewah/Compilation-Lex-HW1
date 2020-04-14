@@ -3,8 +3,11 @@
 /* Declarations section */
 #include <stdio.h>
 void showToken(char *);
+void toLower(char *);
+void handleString();
 char ascii_buffer[6];
 char string_buffer[1024];
+
 %}
 
 %option yylineno
@@ -63,7 +66,7 @@ _({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
 (({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}((0)|[1-9]{digit}*)){0,1}           showToken("DEC_REAL");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
 
-\"(({printable_char})|([[:space:]]|\n|\r|\t|\\|\"|{ascii}))*\"                    showToken("STRING");
+\"(({printable_char})|([[:space:]]|\n|\r|\t|\\|\"|{ascii}))*\"                     handleString();
 {ascii}                                         showToken("ASCII");
 
 
@@ -75,4 +78,37 @@ _({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
 void showToken(char * name)
 {
     printf("%d %s %s\n", yylineno, name, yytext);
+}
+
+void handleString(){
+
+    int new_lengh = 0;
+    int tmp;
+    char* buffer_ptr;
+    memset(string_buffer, 0, strlen(string_buffer));
+    buffer_ptr = string_buffer;
+    if (*(yytext++) == '\"'){ // Double quote string
+
+        while (*yytext != '\"') { // While not end of string
+
+            *(buffer_ptr++)= *(yytext++);
+            printf("buffer ptr %c yytext %c\n", *(buffer_ptr - 1), *(yytext));
+            new_lengh++;
+        }
+        yytext = string_buffer; // Set new yytext after change
+        yyleng = new_lengh; // Update new length of yytext
+        yytext[new_lengh] = '\0';
+    }
+
+    printf("%d STRING %s\n", yylineno, yytext);
+}
+
+void toLower(char* s) {
+	char* ptr = s;
+	while (*ptr) {
+		if( *ptr >= 'A' && *ptr <= 'Z') {
+			*ptr = (*ptr - 'A') + 'a';
+		}
+		ptr++;
+	}
 }
