@@ -30,9 +30,13 @@ hex_digit       ([a-f]|[A-F]|[0-9])
 hex_num         (0x({hex_digit})+)
 sign 		    ([\-|\+])
 /* TODO: limit the range 0x20 to 0x7E, 0x09, 0x0A, 0x0D */
-ascii          ((\\u\{({hex_digit})+\}))
+ascii          (\\u\{({hex_digit}{hex_digit})\})
 escape_char     ([\n|\r|\t|\\|{ascii}|\"])
 printable_char  ([\x20-\x7E])
+printable_char_first [\x20-\x21]
+printable_char_rest [\x23-\x7E]
+
+
 
 
 %%
@@ -74,7 +78,9 @@ _({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
 (({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}((0)|[1-9]{digit}*)){0,1}           showToken("DEC_REAL");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
 
-\"(({printable_char})|([[:space:]]|\n|\r|\t|\\|\"|{ascii}))*\"                     handleString();
+
+\"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*\"  handleString();
+
 {ascii}                                         showToken("ASCII");
 
 
@@ -93,22 +99,49 @@ void handleString(){
     int new_lengh = 0;
     int tmp;
     char* buffer_ptr;
-    memset(string_buffer, 0, strlen(string_buffer));
-    buffer_ptr = string_buffer;
+
+    printf("%d STRING ", yylineno);
+
     if (*(yytext++) == '\"'){ // Double quote string
 
-        while (*yytext != '\"') { // While not end of string
+        while (*yytext ) { // While not end of string
 
-            *(buffer_ptr++)= *(yytext++);
-            printf("buffer ptr %c yytext %c\n", *(buffer_ptr - 1), *(yytext));
-            new_lengh++;
+
+            if ( *yytext == '\\'){
+
+                switch(*(yytext+1)){
+                case 'n':
+                    printf(" escapechar \n");
+                    break;
+                case 't':
+                    printf(" escapechar \t");
+                    break;
+                case 'r':
+                    printf(" escapechar \r");
+                    break;
+                case '"':
+                    printf(" escapechar \'");
+                    break;
+                case 'u':
+                    printf(" escapechar U");
+                    break;
+                default :
+                    break;
+                }
+            }
+
+
+            *(yytext++);
+            printf(" %c ", *(yytext));
         }
-        yytext = string_buffer; // Set new yytext after change
-        yyleng = new_lengh; // Update new length of yytext
-        yytext[new_lengh] = '\0';
+
+
+        //yytext = buffer_ptr; // Set new yytext after change
+        //yyleng = new_lengh; // Update new length of yytext
+        //yytext[new_lengh] = '\0';
     }
 
-    printf("%d STRING %s\n", yylineno, yytext);
+    //printf("%d STRING %s\n", yylineno, yytext);
 }
 
 void toLower(char* s) {
