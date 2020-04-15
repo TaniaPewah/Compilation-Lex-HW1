@@ -31,7 +31,6 @@ hex_num         (0x({hex_digit})+)
 sign 		    ([\-|\+])
 /* TODO: limit the range 0x20 to 0x7E, 0x09, 0x0A, 0x0D */
 ascii          (\\u\{({hex_digit}{hex_digit})\})
-escape_char     ([\n|\r|\t|\\|{ascii}|\"])
 printable_char  ([\x20-\x7E])
 printable_char_first [\x20-\x21]
 printable_char_rest [\x23-\x7E]
@@ -77,13 +76,7 @@ false                                           showToken("FALSE");
 _({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
 (({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}((0)|[1-9]{digit}*)){0,1}           showToken("DEC_REAL");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
-
-
 \"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*\"  handleString();
-
-{ascii}                                         showToken("ASCII");
-
-
 {whitespace}				                    ;
 .		                                        printf("Lex doesn't know what that is!\n");
 
@@ -98,7 +91,8 @@ void handleString(){
 
     int new_lengh = 0;
     int tmp;
-    char* buffer_ptr;
+    char buffer_ptr[1024];
+    int index = 0;
 
     printf("%d STRING ", yylineno);
 
@@ -109,39 +103,38 @@ void handleString(){
 
             if ( *yytext == '\\'){
 
-                switch(*(yytext+1)){
+                switch(*(++yytext)){
                 case 'n':
-                    printf(" escapechar \n");
+                    printf(" escapechar n");
                     break;
                 case 't':
-                    printf(" escapechar \t");
+                    printf(" escapechar t");
                     break;
                 case 'r':
-                    printf(" escapechar \r");
+                    printf(" escapechar r");
                     break;
                 case '"':
-                    printf(" escapechar \'");
+                    printf(" escapechar '");
                     break;
                 case 'u':
-                    printf(" escapechar U");
+                    printf(" escapechar u");
                     break;
                 default :
+                    printf(" escapechar u");
                     break;
                 }
             }
-
-
+            buffer_ptr[index++] = *yytext;
+            //printf(" buffer at index %d : %c \n", index, buffer_ptr[index-1]);
+            //printf(" yytext is : %c \n",  *yytext);
+            printf("%c",  *yytext);
             *(yytext++);
-            printf(" %c ", *(yytext));
         }
 
-
-        //yytext = buffer_ptr; // Set new yytext after change
-        //yyleng = new_lengh; // Update new length of yytext
-        //yytext[new_lengh] = '\0';
+        //buffer_ptr[index++] = '\0';
     }
 
-    //printf("%d STRING %s\n", yylineno, yytext);
+    printf("%d STRING %s\n", yylineno, buffer_ptr);
 }
 
 void toLower(char* s) {
