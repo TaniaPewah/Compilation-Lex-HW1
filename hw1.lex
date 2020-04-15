@@ -12,6 +12,7 @@ int getDecValue(int);
 void fromHexToDec();
 void fromBinToDec();
 void fromOctToDec();
+int isHex(char);
 int isAsciiValid(char*);
 
 char ascii_buffer[6];
@@ -119,10 +120,23 @@ void handleString(){
                     break;
                 case 'u':
                     if(isAsciiValid(yytext)){
-                        // { 20 - 7E }
+
+                        //printf("ascii %s \n",  ascii_buffer);
 
                         // decode
-                    } 
+                        toLower(ascii_buffer);
+                        tmp = (int)strtol(ascii_buffer, NULL, 16);
+                        //printf("strtol %d \n",  tmp);
+
+                        *(yytext++);
+                        *(yytext++);
+                        *(yytext++);
+                        *(yytext++);
+
+                        if (tmp >= 32 && tmp <= 126){ // If printable ascii
+                            buffer_ptr[index++] = (char)tmp;
+                        }
+                    }
                     // decodeU();
                     break;
                 default :
@@ -132,16 +146,16 @@ void handleString(){
             } else {
                 buffer_ptr[index++] = *yytext;
             }
-            //printf(" buffer at index %d : %c \n", index, buffer_ptr[index-1]);
-            //printf(" yytext is : %c \n",  *yytext);
+
             printf("%c",  buffer_ptr[index-1]);
             *(yytext++);
         }
 
         //buffer_ptr[index++] = '\0';
     }
+    printf("\n");
 
-    printf("%d STRING %s\n", yylineno, buffer_ptr);
+    //printf("%d STRING %s\n", yylineno, buffer_ptr);
 }
 
 void toLower(char* s) {
@@ -235,11 +249,34 @@ void fromBinToDec(){
 }
 
 
-int isAsciiValid(char* yytext){
-    if(*yytext == '{'){
+int isAsciiValid(char* asciText){
 
+    int result = 0;
+    asciText++;
+    if( asciText[0] == '{'){
+
+        asciText++;
+        result += isHex(*asciText) ? 1 : 0;
+
+        ascii_buffer[0] = asciText[0];
+        asciText++;
+        result += isHex(*asciText) ? 1 : 0;
+
+        ascii_buffer[1] = asciText[0];
+        asciText++;
+
+        if(*asciText == '}'){
+            result += 1;
+        }
+        ascii_buffer[2] = '\0';
     }
 
-    return 1;
+    return (result == 3) ? 1 : 0;
+}
+
+int isHex(char c){
+	return  ( (c >= '0' && c <= '9') // digit
+		   || (c >= 'a' && c <= 'f') // lowercase hex
+		   || (c >= 'A' && c <= 'F'));
 }
 
