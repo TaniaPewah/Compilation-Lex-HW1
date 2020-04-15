@@ -13,6 +13,7 @@ void fromHexToDec();
 void fromBinToDec();
 void fromOctToDec();
 int isHex(char);
+void showDecInt();
 int isAsciiValid(char*);
 void handleGeneralError();
 
@@ -74,9 +75,9 @@ false                                           showToken("FALSE");
 :                                               showToken("COLON");
 0b{bin_digit}+                                  fromBinToDec();
 0o{oct_digit}+                                  fromOctToDec();
-((0)|[1-9]{digit}*)                             showToken("DEC_INT");
+{digit}*                                        showDecInt();
 {hex_num}                                       fromHexToDec();
-_({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
+(_({letter}|{digit})+)|({letter}({letter}|{digit})*)        showToken("ID");
 (({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}((0)|[1-9]{digit}*)){0,1}           showToken("DEC_REAL");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
 \"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*\"  handleString();
@@ -88,6 +89,11 @@ _({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
 void showToken(char * name)
 {
     printf("%d %s %s\n", yylineno, name, yytext);
+}
+
+void showDecInt(){
+
+    showToken("DEC_INT");
 }
 
 void handleString(){
