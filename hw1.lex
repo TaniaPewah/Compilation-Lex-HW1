@@ -14,6 +14,7 @@ void fromBinToDec();
 void fromOctToDec();
 int isHex(char);
 int isAsciiValid(char*);
+void handleGeneralError();
 
 char ascii_buffer[6];
 char string_buffer[1024];
@@ -80,7 +81,7 @@ _({letter}|{digit})+|({letter}|{digit})+        showToken("ID");
 {hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
 \"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*\"  handleString();
 {whitespace}				                    ;
-.		                                        printf("Lex doesn't know what that is!\n");
+.		                                        handleGeneralError();
 
 %%
 
@@ -136,11 +137,19 @@ void handleString(){
                         if (tmp >= 32 && tmp <= 126){ // If printable ascii
                             buffer_ptr[index++] = (char)tmp;
                         }
+                        else{
+                            printf("Error undefined escape sequence u\n");
+                            exit(0);
+                        }
                     }
-
+                    else{
+                        printf("Error undefined escape sequence u\n");
+                        exit(0);
+                    }
                     break;
                 default :
-                    // error?
+                    printf("Error undefined escape sequence %c\n", *yytext);
+                    exit(0);
                     break;
                 }
             } else {
@@ -278,5 +287,9 @@ int isHex(char c){
 	return  ( (c >= '0' && c <= '9') // digit
 		   || (c >= 'a' && c <= 'f') // lowercase hex
 		   || (c >= 'A' && c <= 'F'));
+}
+
+void handleGeneralError(){
+    printf("Error %s\n", yytext);
 }
 
