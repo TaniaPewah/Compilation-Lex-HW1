@@ -100,7 +100,7 @@ void handleString(){
 
     if (*(yytext++) == '\"'){ // Double quote string
 
-        while (*yytext ) { // While not end of string
+        while (*yytext != '\"') { // While not end of string
 
 
             if ( *yytext == '\\'){
@@ -137,7 +137,7 @@ void handleString(){
                             buffer_ptr[index++] = (char)tmp;
                         }
                     }
-                    // decodeU();
+
                     break;
                 default :
                     // error?
@@ -150,8 +150,8 @@ void handleString(){
             printf("%c",  buffer_ptr[index-1]);
             *(yytext++);
         }
-
-        //buffer_ptr[index++] = '\0';
+        index--;
+        buffer_ptr[index] = '\0';
     }
     printf("\n");
 
