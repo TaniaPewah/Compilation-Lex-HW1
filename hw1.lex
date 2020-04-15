@@ -12,6 +12,7 @@ int getDecValue(int);
 void fromHexToDec();
 void fromBinToDec();
 void fromOctToDec();
+int isAsciiValid(char*);
 
 char ascii_buffer[6];
 char string_buffer[1024];
@@ -105,29 +106,35 @@ void handleString(){
 
                 switch(*(++yytext)){
                 case 'n':
-                    printf(" escapechar n");
+                    buffer_ptr[index++] = '\n';
                     break;
                 case 't':
-                    printf(" escapechar t");
+                    buffer_ptr[index++] = '\t';
                     break;
                 case 'r':
-                    printf(" escapechar r");
+                    buffer_ptr[index++] = '\r';
                     break;
                 case '"':
-                    printf(" escapechar '");
+                    buffer_ptr[index++] = '"';
                     break;
                 case 'u':
-                    printf(" escapechar u");
+                    if(isAsciiValid(yytext)){
+                        // { 20 - 7E }
+
+                        // decode
+                    } 
+                    // decodeU();
                     break;
                 default :
-                    printf(" escapechar u");
+                    // error?
                     break;
                 }
+            } else {
+                buffer_ptr[index++] = *yytext;
             }
-            buffer_ptr[index++] = *yytext;
             //printf(" buffer at index %d : %c \n", index, buffer_ptr[index-1]);
             //printf(" yytext is : %c \n",  *yytext);
-            printf("%c",  *yytext);
+            printf("%c",  buffer_ptr[index-1]);
             *(yytext++);
         }
 
@@ -227,4 +234,12 @@ void fromBinToDec(){
     printf("%d BIN_INT %d\n", yylineno, dec_value);
 }
 
+
+int isAsciiValid(char* yytext){
+    if(*yytext == '{'){
+
+    }
+
+    return 1;
+}
 
