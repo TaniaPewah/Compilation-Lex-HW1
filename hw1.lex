@@ -5,6 +5,7 @@
 void showToken(char *);
 void toLower(char *);
 void handleString();
+void handleUnclosedString();
 void handleComment();
 void unclose_comment();
 int power(int, int);
@@ -80,7 +81,8 @@ false                                           showToken("FALSE");
 (_({letter}|{digit})+)|({letter}({letter}|{digit})*)        showToken("ID");
 (({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}({digit}*)){0,1}          showToken("DEC_REAL");
 {hex_num}[p|P]{sign}({digit}*)         showToken("HEX_FP");
-\"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*\"  handleString();
+\"((\\\")|[\x20-\x21]|[\x23-\x7E]|{whitespace})*\"  handleString();
+\"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*  handleUnclosedString();
 {whitespace}				                    ;
 .		                                        handleGeneralError();
 
@@ -96,6 +98,11 @@ void showDecInt(){
     printf("%d DEC_INT %d\n", yylineno, decInt);
 }
 
+void handleUnclosedString(){
+    printf("Error unclosed string\n");
+    exit(0);
+}
+
 void handleString(){
 
     int new_lengh = 0;
@@ -103,12 +110,14 @@ void handleString(){
     char buffer_ptr[1024];
     int index = 0;
 
-    printf("%d STRING ", yylineno);
-
     if (*(yytext++) == '\"'){ // Double quote string
 
         while (*yytext != '\"') { // While not end of string
 
+            if ( *yytext == '\n'){
+                printf("Error unclosed string\n");
+                exit(0);
+            }
 
             if ( *yytext == '\\'){
 
@@ -165,15 +174,15 @@ void handleString(){
                 buffer_ptr[index++] = *yytext;
             }
 
-            printf("%c",  buffer_ptr[index-1]);
+            // printf("%c",  buffer_ptr[index-1]);
             *(yytext++);
         }
-        index--;
+
         buffer_ptr[index] = '\0';
     }
-    printf("\n");
+    //printf("\n");
 
-    //printf("%d STRING %s\n", yylineno, buffer_ptr);
+    printf("%d STRING %s\n", yylineno, buffer_ptr);
 }
 
 void toLower(char* s) {
@@ -210,7 +219,6 @@ void unclose_comment(){
     printf("Error unclosed comment\n");
     exit(0);
 }
-
 
 int power(int base, int exp){
     int value = 1;
