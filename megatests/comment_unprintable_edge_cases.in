@@ -1,0 +1,4 @@
+// have fun with form feeds!
+// this is a single line comment which should be printed and then ruined by 
+/* this is a nested comment but the  character will bork it first /* */ */
+/* this a regular comment ruined by  */

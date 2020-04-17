@@ -1,0 +1,75 @@
+1 LET let
+1 ID x
+1 COLON :
+1 TYPE String
+1 ASSIGN =
+1 STRING This is a string
+2 LET let
+2 ID x
+2 COLON :
+2 TYPE String
+2 ASSIGN =
+2 STRING This is a string" still a string
+3 ID lex
+3 ID x
+3 COLON :
+3 TYPE String
+3 ASSIGN =
+3 STRING You shouldn't see thisThis should be the first thing on this line, you should see the carriage return
+4 ID lex
+4 ID x
+4 COLON :
+4 TYPE String
+4 ASSIGN =
+4 STRING String split over 
+ two lines
+5 ID lex
+5 ID x
+5 COLON :
+5 TYPE String
+5 ASSIGN =
+5 STRING Literal backslash \n followed by an n
+6 ID lex
+6 ID x
+6 COLON :
+6 TYPE String
+6 ASSIGN =
+6 STRING Literal backslash \r followed by an r
+7 ID lex
+7 ID x
+7 COLON :
+7 TYPE String
+7 ASSIGN =
+7 STRING Literal backslash \u followed by a u
+8 LET let
+8 ID x
+8 COLON :
+8 TYPE String
+8 ASSIGN =
+8 STRING This is a string with /* /* */ inside
+9 LET let
+9 ID x
+9 COLON :
+9 TYPE String
+9 ASSIGN =
+9 STRING This is a string with /* */ inside
+10 LET let
+10 ID x
+10 COLON :
+10 TYPE String
+10 ASSIGN =
+10 STRING This is a valid A edge case, since it can be up to six hex digits
+11 LET let
+11 ID x
+11 COLON :
+11 TYPE String
+11 ASSIGN =
+11 STRING This is a valid O edge case that'll come up in the shuffle, since it can be up to six hex digits
+12 LET let
+12 ID x
+12 COLON :
+12 TYPE String
+12 ASSIGN =
+12 STRING This is a string
+12 ID AndThisIsATokenFollowedByAnUnclosedString
+Error unclosed string

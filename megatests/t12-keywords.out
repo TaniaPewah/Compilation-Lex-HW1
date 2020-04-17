@@ -1,0 +1,13 @@
+1 VAR var
+1 LET let
+1 FUNC func
+1 IMPORT import
+1 ID _import
+2 NIL nil
+2 ID NIL
+2 WHILE while
+2 IF if
+2 ELSE else
+2 RETURN return
+3 TRUE true
+3 FALSE false

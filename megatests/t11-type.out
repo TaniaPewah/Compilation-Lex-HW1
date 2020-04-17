@@ -1,0 +1,10 @@
+1 TYPE Int
+2 TYPE UInt
+3 TYPE Double
+4 TYPE Float
+5 TYPE Bool
+6 TYPE String
+7 TYPE Character
+8 ID int
+9 ID char
+10 ID UINT

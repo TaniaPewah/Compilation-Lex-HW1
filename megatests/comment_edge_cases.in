@@ -1,0 +1,8 @@
+/* this comment should be followed by BINOP * BINOP / */ */
+// /* this multi-line comment inside a single-line comment is legal */
+/* // this single-line comment inside a multi-line comment is legal */
+/* // this single-line comment inside a multi-line comment is legal \n */
+// having \n and not an actual newline doesn't end a single line comment
+// having \r and not an actual newline doesn't end a single line comment
+// same with \r\n, you get the point
+/* this should hit an EOF 
