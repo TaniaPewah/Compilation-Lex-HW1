@@ -64,8 +64,8 @@ return                                          showToken("RETURN");
 \[                                               showToken("LBRACKET");
 \]                                               showToken("RBRACKET");
 =                                               showToken("ASSIGN");
-((\/\*)(([^\*])|(\*([^\/])))*(\*\/))|(\/\/.*)                handleComment();
-((\/\*)(([^\*])|(\*([^\/])))*)                  unclose_comment();
+((\/\*)(([\x20-\x29]|[\x2B-\x7E]|[\t\r\n])|(\*([\x20-\x2E]|[\x30-\x7E]|[\t\r\n])))*(\*\/))|(\/\/{printable_char}*)   handleComment();
+(\/\*)(([\x20-\x29]|[\x2B-\x7E])|(\*([\x20-\x2E]|[\x30-\x7E])))*                  unclose_comment();
 ==|!=|<|>|<=|>=                                 showToken("RELOP");
 &&|\|\|                                         showToken("LOGOP");
 \+|\-|\*|\/|%                                   showToken("BINOP");
@@ -78,8 +78,8 @@ false                                           showToken("FALSE");
 {digit}*                                        showDecInt();
 {hex_num}                                       fromHexToDec();
 (_({letter}|{digit})+)|({letter}({letter}|{digit})*)        showToken("ID");
-(({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}((0)|[1-9]{digit}*)){0,1}           showToken("DEC_REAL");
-{hex_num}[p|P]{sign}((0)|[1-9]{digit}*)         showToken("HEX_FP");
+(({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}({digit}*)){0,1}          showToken("DEC_REAL");
+{hex_num}[p|P]{sign}({digit}*)         showToken("HEX_FP");
 \"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*\"  handleString();
 {whitespace}				                    ;
 .		                                        handleGeneralError();
@@ -92,8 +92,8 @@ void showToken(char * name)
 }
 
 void showDecInt(){
-
-    showToken("DEC_INT");
+    int decInt = atoi(yytext);
+    printf("%d DEC_INT %d\n", yylineno, decInt);
 }
 
 void handleString(){
@@ -124,6 +124,9 @@ void handleString(){
                     break;
                 case '"':
                     buffer_ptr[index++] = '"';
+                    break;
+                case '\\':
+                    buffer_ptr[index++] = '\\';
                     break;
                 case 'u':
                     if(isAsciiValid(yytext)){
@@ -297,5 +300,6 @@ int isHex(char c){
 
 void handleGeneralError(){
     printf("Error %s\n", yytext);
+    exit(0);
 }
 
