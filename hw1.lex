@@ -80,9 +80,9 @@ false                                           showToken("FALSE");
 {hex_num}                                       fromHexToDec();
 (_({letter}|{digit})+)|({letter}({letter}|{digit})*)        showToken("ID");
 (({digit}+\.{digit}*)|({digit}*\.{digit}+))((e|E){sign}({digit}*)){0,1}          showToken("DEC_REAL");
-{hex_num}[p|P]{sign}({digit}*)         showToken("HEX_FP");
-\"((\\\")|[\x20-\x21]|[\x23-\x7E]|{whitespace})*\"  handleString();
-\"((\\\")|[\x20-\x21]|[\x23-\x7E]|[\x09]|[\x0A]|[\x0D])*  handleUnclosedString();
+{hex_num}[p|P]{sign}({digit}*)                  showToken("HEX_FP");
+\"((\\\")|[^\"])*\"                             handleString();
+\"((\\\")|[^\"\n])*                             handleUnclosedString();
 {whitespace}				                    ;
 .		                                        handleGeneralError();
 
@@ -99,6 +99,17 @@ void showDecInt(){
 }
 
 void handleUnclosedString(){
+    int i = 0;
+
+    while(i < yyleng){
+        if(((int)*yytext < 32 && (int)*yytext != 9 && (int)*yytext != 10 && (int)*yytext != 13) || ((int)*yytext > 126)){
+            printf("Error %c\n", *yytext);
+            exit(0);
+        }
+        *(yytext++);
+        i++;
+
+    }
     printf("Error unclosed string\n");
     exit(0);
 }
@@ -113,6 +124,11 @@ void handleString(){
     if (*(yytext++) == '\"'){ // Double quote string
 
         while (*yytext != '\"') { // While not end of string
+
+            if(((int)*yytext < 32 && (int)*yytext != 9 && (int)*yytext != 10 && (int)*yytext != 13) || ((int)*yytext > 126)){
+                printf("Error %c\n", *yytext);
+                exit(0);
+            }
 
             if ( *yytext == '\n'){
                 printf("Error unclosed string\n");
