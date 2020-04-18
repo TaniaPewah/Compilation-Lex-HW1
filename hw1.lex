@@ -17,8 +17,8 @@ int isHex(char);
 void showDecInt();
 int isAsciiValid(char*);
 void handleGeneralError();
-
-char ascii_buffer[6];
+int maxAsciBuffer = 6;
+char ascii_buffer[maxAsciBuffer];
 char string_buffer[1024];
 
 %}
@@ -293,27 +293,28 @@ void fromBinToDec(){
 
 int isAsciiValid(char* asciText){
 
-    int result = 0;
+    int counter = 0;
     asciText++;
     if( asciText[0] == '{'){
-
-        asciText++;
-        result += isHex(*asciText) ? 1 : 0;
-
-        ascii_buffer[0] = asciText[0];
-        asciText++;
-        result += isHex(*asciText) ? 1 : 0;
-
-        ascii_buffer[1] = asciText[0];
         asciText++;
 
-        if(*asciText == '}'){
-            result += 1;
+        while(asciText[0] != '}' && (counter < maxAsciBuffer) && isHex(asciText[0]) ) {
+            ascii_buffer[counter] = asciText[0];
+            counter++;
+            asciText++;
         }
-        ascii_buffer[2] = '\0';
+
+        ascii_buffer[counter] = '\0';
+
+        if(asciText[0] != '}'){
+            return false;
+        }
+    }
+    else {
+        return false;
     }
 
-    return (result == 3) ? 1 : 0;
+    return true;
 }
 
 int isHex(char c){
