@@ -6,7 +6,7 @@ void showToken(char *);
 void toLower(char *);
 void handleString();
 void handleUnclosedString();
-void handleComment();
+void handleComment(int);
 void unclose_comment();
 int power(int, int);
 int getDecValue(int);
@@ -20,6 +20,7 @@ void handleGeneralError();
 int maxAsciBuffer = 6;
 char ascii_buffer[7];
 char string_buffer[1024];
+void checkUnprintableChar();
 
 %}
 
@@ -65,8 +66,10 @@ return                                          showToken("RETURN");
 \[                                               showToken("LBRACKET");
 \]                                               showToken("RBRACKET");
 =                                               showToken("ASSIGN");
-((\/\*)(([\x20-\x29]|[\x2B-\x7E]|{whitespace})|(\*([\x20-\x2E]|[\x30-\x7E]|{whitespace})))*(\*\/))|(\/\/{printable_char}*)   handleComment();
-(\/\*)(([\x20-\x29]|[\x2B-\x7E]|{whitespace})|(\*([\x20-\x2E]|[\x30-\x7E]|{whitespace})))*                  unclose_comment();
+
+((\/\*)(([^\*])|(\*([^\/]))|(\/\*))*(\*\/))    handleComment(1);
+(\/\/.*)                                       handleComment(0);
+(\/\*)(([^\*])|(\*([^\/]))|(\/\*))*                 unclose_comment();
 ==|!=|<|>|<=|>=                                 showToken("RELOP");
 &&|\|\|                                         showToken("LOGOP");
 \+|\-|\*|\/|%                                   showToken("BINOP");
@@ -102,16 +105,21 @@ void handleUnclosedString(){
     int i = 0;
 
     while(i < yyleng){
-        if(((int)*yytext < 32 && (int)*yytext != 9 && (int)*yytext != 10 && (int)*yytext != 13) || ((int)*yytext > 126)){
-            printf("Error %c\n", *yytext);
-            exit(0);
-        }
+        checkUnprintableChar();
         *(yytext++);
         i++;
 
     }
     printf("Error unclosed string\n");
     exit(0);
+}
+
+
+void checkUnprintableChar() {
+    if(((int)*yytext < 32 && (int)*yytext != 9 && (int)*yytext != 10 && (int)*yytext != 13) || ((int)*yytext > 126)){
+        printf("Error %c\n", *yytext);
+        exit(0);
+    }
 }
 
 void handleString(){
@@ -125,10 +133,7 @@ void handleString(){
 
         while (*yytext != '\"') { // While not end of string
 
-            if(((int)*yytext < 32 && (int)*yytext != 9 && (int)*yytext != 10 && (int)*yytext != 13) || ((int)*yytext > 126)){
-                printf("Error %c\n", *yytext);
-                exit(0);
-            }
+            checkUnprintableChar();
 
             if ( *yytext == '\n'){
                 printf("Error unclosed string\n");
@@ -162,11 +167,9 @@ void handleString(){
                         toLower(ascii_buffer);
                         tmp = (int)strtol(ascii_buffer, NULL, 16);
                         //printf("strtol %d \n",  tmp);
-
-                        *(yytext++);
-                        *(yytext++);
-                        *(yytext++);
-                        *(yytext++);
+                        while(*yytext != '}') {
+                            *(yytext++);
+                        }
 
                         if (tmp >= 32 && tmp <= 126){ // If printable ascii
                             buffer_ptr[index++] = (char)tmp;
@@ -211,27 +214,41 @@ void toLower(char* s) {
 	}
 }
 
-void handleComment() {
+void handleComment(int is_multi) {
     char* buffer_ptr = yytext;
-    int comment_len = yyleng;
     int num_lines = 1;
 
-    for(int i = 1; i < comment_len - 1; i++) {
-        if (buffer_ptr[i] == '/' && buffer_ptr[i + 1] == '*') {
+    if(!is_multi) {
+        printf("%d COMMENT 1\n", yylineno, num_lines);
+    }
+
+    for(int i = 1; i < yyleng - 1; i++) {
+        checkUnprintableChar();
+        if (is_multi && i < yyleng - 2 && *yytext == '/' && yytext[1] == '*') {
             printf("Warning nested comment\n");
             exit(0);
         }
+        *(yytext++);
     }
 
-    for(int i = 0; i < comment_len; i++) {
+    for(int i = 0; i < yyleng; i++) {
         if (buffer_ptr[i] == '\n') {
             num_lines++;
         }
     }
-    printf("%d COMMENT %d\n", yylineno, num_lines);
+    if(is_multi) {
+        printf("%d COMMENT %d\n", yylineno, num_lines);
+    }
 }
 
 void unclose_comment(){
+
+    for(int i = 1; i < yyleng - 1; i++) {
+        checkUnprintableChar();
+        i++;
+        *(yytext++);
+    }
+    
     printf("Error unclosed comment\n");
     exit(0);
 }
