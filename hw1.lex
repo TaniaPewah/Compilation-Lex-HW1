@@ -222,6 +222,8 @@ void handleComment(int is_multi) {
         printf("%d COMMENT 1\n", yylineno, num_lines);
     }
 
+    *(yytext++);
+
     for(int i = 1; i < yyleng - 1; i++) {
         checkUnprintableChar();
         if (is_multi && i < yyleng - 2 && *yytext == '/' && yytext[1] == '*') {
