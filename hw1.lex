@@ -18,7 +18,7 @@ void showDecInt();
 int isAsciiValid(char*);
 void handleGeneralError();
 int maxAsciBuffer = 6;
-char ascii_buffer[maxAsciBuffer];
+char ascii_buffer[7];
 char string_buffer[1024];
 
 %}
@@ -307,14 +307,14 @@ int isAsciiValid(char* asciText){
         ascii_buffer[counter] = '\0';
 
         if(asciText[0] != '}'){
-            return false;
+            return 0;
         }
     }
     else {
-        return false;
+        return 0;
     }
 
-    return true;
+    return 1;
 }
 
 int isHex(char c){
